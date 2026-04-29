@@ -1,4 +1,5 @@
 import { BASE_URL } from "./api";
+import api from "./api";
 
 export interface CurrentUser {
   id: string;
@@ -12,20 +13,26 @@ function isBrowser(): boolean {
   return typeof window !== "undefined";
 }
 
+export function clearOAuthStorage(): void {
+  if (!isBrowser()) return;
+  sessionStorage.removeItem("oauth_state");
+  sessionStorage.removeItem("oauth_code_verifier");
+  sessionStorage.removeItem("oauth_code_challenge");
+  sessionStorage.removeItem("oauth_code_challenge_method");
+}
+
 export async function fetchCurrentUser(): Promise<CurrentUser | null> {
   if (!isBrowser()) return null;
 
   try {
-    const res = await fetch(`${BASE_URL}/api/users/me`, {
-      credentials: "include",
-    });
+    const response = await api.get<{ status: string; data: CurrentUser }>(
+      `${BASE_URL}/api/users/me`
+    );
 
-    if (!res.ok) {
-      return null;
+    if (response.data.status === "success" && response.data.data) {
+      return response.data.data;
     }
-
-    const { data } = await res.json();
-    return data as CurrentUser;
+    return null;
   } catch {
     return null;
   }
@@ -35,11 +42,10 @@ export async function logout(): Promise<void> {
   if (!isBrowser()) return;
 
   try {
-    await fetch(`${BASE_URL}/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
+    await api.post(`${BASE_URL}/auth/logout`);
   } catch {
     // Ignore errors
+  } finally {
+    clearOAuthStorage();
   }
 }
