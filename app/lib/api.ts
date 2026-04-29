@@ -26,18 +26,13 @@ api.interceptors.response.use(
       try {
         originalRequest.retried = true;
 
-        const refreshResponse = await axios.post(
+        await axios.post(
           `${BASE_URL}/auth/refresh`,
           {},
-          { withCredentials: true }
+          { withCredentials: true, headers: { "X-API-Version": "1" } }
         );
 
-        if (refreshResponse.status === 200) {
-          return api(originalRequest);
-        }
-
-        window.location.href = "/login";
-        return Promise.reject(error);
+        return api(originalRequest);
       } catch (refreshError) {
         window.location.href = "/login";
         return Promise.reject(refreshError);
