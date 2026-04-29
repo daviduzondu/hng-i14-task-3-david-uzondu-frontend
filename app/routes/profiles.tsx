@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router";
+import { useSearchParams, useNavigate } from "react-router";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -18,9 +18,6 @@ import {
 import { request } from "../lib/api";
 import type { Profile, Gender, AgeGroupType } from "../types";
 import { formatGender, formatAgeGroup, formatProbability, formatDate } from "../lib/utils";
-import { isAuthenticated } from "../lib/auth";
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
 
 interface ProfilesApiResponse {
   status: string;
@@ -93,13 +90,6 @@ export default function Profiles() {
     resolver: zodResolver(filtersSchema),
     defaultValues: filters,
   });
-
-  useEffect(() => {
-    if (!isAuthenticated()) {
-      sessionStorage.setItem("redirect_after_login", window.location.pathname + window.location.search);
-      navigate("/login");
-    }
-  }, [navigate]);
 
   const queryParams = new URLSearchParams();
   Object.entries(filters).forEach(([key, value]) => {

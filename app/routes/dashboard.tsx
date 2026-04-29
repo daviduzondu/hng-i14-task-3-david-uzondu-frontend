@@ -1,11 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Container, Row, Col, Card, Spinner } from "react-bootstrap";
 import { request } from "../lib/api";
-import type { SuccessResponse } from "../types/api";
 import type { Profile } from "../types";
-import { isAuthenticated } from "../lib/auth";
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
 
 interface DashboardStats {
   total: number;
@@ -27,14 +23,6 @@ export function meta() {
 }
 
 export default function Dashboard() {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!isAuthenticated()) {
-      sessionStorage.setItem("redirect_after_login", window.location.pathname + window.location.search);
-      navigate("/login");
-    }
-  }, [navigate]);
 
   const { data: statsData, isLoading } = useQuery<DashboardStats>({
     queryKey: ["dashboard-stats"],

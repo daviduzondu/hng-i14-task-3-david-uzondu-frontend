@@ -1,8 +1,7 @@
 import { Outlet, useNavigate, useLocation } from "react-router";
 import { useState, useEffect } from "react";
-import { Container, Navbar, Nav, Button, Image } from "react-bootstrap";
-import { getUsername, getRole, clearCredentials, isAuthenticated } from "../lib/auth";
-import type { Role } from "../types";
+import { Container, Navbar, Nav, Button, Image, Spinner } from "react-bootstrap";
+import { fetchCurrentUser, logout, type CurrentUser } from "../lib/auth";
 
 const PUBLIC_ROUTES = ["/login", "/auth/github/callback"];
 
@@ -10,43 +9,51 @@ export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const [username, setUsername] = useState<string | null>(null);
-  const [role, setRole] = useState<Role | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<CurrentUser | null>(null);
   const [isAuthCheckComplete, setIsAuthCheckComplete] = useState(false);
 
   useEffect(() => {
-    setUsername(getUsername());
-    setRole(getRole());
-    setIsLoggedIn(isAuthenticated());
-    setIsAuthCheckComplete(true);
+    const checkAuth = async () => {
+      const currentUser = await fetchCurrentUser();
+      setUser(currentUser);
+      setIsAuthCheckComplete(true);
+    };
+    checkAuth();
   }, []);
 
   useEffect(() => {
     if (!isAuthCheckComplete) return;
     
     const isPublicRoute = PUBLIC_ROUTES.some(route => location.pathname.startsWith(route));
-    if (!isPublicRoute && !isLoggedIn && location.pathname !== "/login") {
-      sessionStorage.setItem("redirect_after_login", location.pathname + location.search);
+    if (!isPublicRoute && !user) {
       navigate("/login", { replace: true });
     }
-  }, [isAuthCheckComplete, isLoggedIn, location.pathname, navigate]);
+  }, [isAuthCheckComplete, user, location.pathname, navigate]);
 
   const handleLogout = async () => {
-    try {
-      await fetch(`${import.meta.env.VITE_BACKEND_URL_BASE || "http://localhost:6060"}/auth/logout`, {
-        method: "POST",
-        credentials: "include",
-      });
-    } catch {
-      // Ignore errors
-    }
-    clearCredentials();
+    await logout();
+    setUser(null);
+    setIsAuthCheckComplete(false);
     navigate("/login");
   };
 
   if (location.pathname === "/login") {
+    if (!isAuthCheckComplete) {
+      return (
+        <Container className="d-flex align-items-center justify-content-center" style={{ minHeight: "100vh" }}>
+          <Spinner animation="border" role="status" />
+        </Container>
+      );
+    }
     return <Outlet />;
+  }
+
+  if (!isAuthCheckComplete) {
+    return (
+      <Container className="d-flex align-items-center justify-content-center" style={{ minHeight: "100vh" }}>
+        <Spinner animation="border" role="status" />
+      </Container>
+    );
   }
 
   return (
@@ -66,15 +73,15 @@ export default function Layout() {
             <Nav>
               <Nav.Link href="/account" className="d-flex align-items-center">
                 <Image
-                  src={`https://github.com/${username}.png`}
+                  src={user?.avatar_url || `https://github.com/${user?.username}.png`}
                   roundedCircle
                   width={32}
                   height={32}
                   className="me-2"
-                  alt={username || ""}
+                  alt={user?.username || ""}
                 />
-                <span className="text-light me-2">{username}</span>
-                <span className="badge bg-secondary">{role}</span>
+                <span className="text-light me-2">{user?.username}</span>
+                <span className="badge bg-secondary">{user?.role}</span>
               </Nav.Link>
               <Button variant="outline-light" size="sm" onClick={handleLogout} className="ms-2">
                 Logout

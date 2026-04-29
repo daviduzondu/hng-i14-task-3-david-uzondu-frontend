@@ -1,23 +1,28 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { Container, Spinner, Alert } from "react-bootstrap";
-import api from "../lib/api";
-import type { LoginCallbackResponse } from "../types/api";
 import { BASE_URL } from "../lib/api";
 
 function getCookie(name: string): string | null {
+  const nameEQ = name + "=";
   const cookies = document.cookie.split(";");
-  for (const cookie of cookies) {
-    const [key, ...valueParts] = cookie.trim().split("=");
-    if (key === name) {
-      return valueParts.join("=");
+  for (let i = 0; i < cookies.length; i++) {
+    let cookie = cookies[i];
+    while (cookie.charAt(0) === " ") {
+      cookie = cookie.substring(1);
+    }
+    if (cookie.indexOf(nameEQ) === 0) {
+      return cookie.substring(nameEQ.length);
     }
   }
   return null;
 }
 
 function clearCookie(name: string) {
-  document.cookie = name + "=; max-age=0; path=/auth/github/callback";
+  document.cookie = `${name}=; max-age=0; path=/`;
+  document.cookie = `${name}=; max-age=0; path=/auth/github/callback`;
+  document.cookie = `${name}=; max-age=0; path=/auth/github`;
+  document.cookie = `${name}=; max-age=0`;
 }
 
 export default function GitHubCallback() {
@@ -33,8 +38,13 @@ export default function GitHubCallback() {
       return;
     }
 
+    console.log("All cookies:", document.cookie);
     const storedState = getCookie("oauth_state");
     const codeVerifier = getCookie("oauth_code_verifier");
+
+    console.log("storedState from cookie:", storedState);
+    console.log("stateParam from URL:", stateParam);
+    console.log("codeVerifier from cookie:", codeVerifier);
 
     clearCookie("oauth_code_verifier");
     clearCookie("oauth_state");
@@ -53,22 +63,15 @@ export default function GitHubCallback() {
 
     const handleCallback = async () => {
       try {
-        const response = await api.get<LoginCallbackResponse>(
-          `${BASE_URL}/auth/github/callback?code=${code}&code_verifier=${codeVerifier}&state=${stateParam}`
-        );
-        const data = response.data;
-
-        if (data.status === "success" && data.data) {
-          localStorage.setItem("access_token", data.data.access_token);
-          localStorage.setItem("username", data.data.username);
-          localStorage.setItem("role", data.data.role);
-          const redirectUrl = sessionStorage.getItem("redirect_after_login");
-          if (redirectUrl) {
-            sessionStorage.removeItem("redirect_after_login");
-            navigate(redirectUrl);
-          } else {
-            navigate("/dashboard");
+        const response = await fetch(
+          `${BASE_URL}/auth/github/callback?code=${code}&code_verifier=${codeVerifier}&state=${stateParam}`,
+          {
+            credentials: "include",
           }
+        );
+
+        if (response.ok) {
+          navigate("/");
         } else {
           setError("Authentication failed");
         }
