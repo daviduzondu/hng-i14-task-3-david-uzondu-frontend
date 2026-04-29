@@ -3,28 +3,6 @@ import { useNavigate, useSearchParams } from "react-router";
 import { Container, Spinner, Alert } from "react-bootstrap";
 import { BASE_URL } from "../lib/api";
 
-function getCookie(name: string): string | null {
-  const nameEQ = name + "=";
-  const cookies = document.cookie.split(";");
-  for (let i = 0; i < cookies.length; i++) {
-    let cookie = cookies[i];
-    while (cookie.charAt(0) === " ") {
-      cookie = cookie.substring(1);
-    }
-    if (cookie.indexOf(nameEQ) === 0) {
-      return cookie.substring(nameEQ.length);
-    }
-  }
-  return null;
-}
-
-function clearCookie(name: string) {
-  document.cookie = `${name}=; max-age=0; path=/`;
-  document.cookie = `${name}=; max-age=0; path=/auth/github/callback`;
-  document.cookie = `${name}=; max-age=0; path=/auth/github`;
-  document.cookie = `${name}=; max-age=0`;
-}
-
 export default function GitHubCallback() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -38,16 +16,17 @@ export default function GitHubCallback() {
       return;
     }
 
-    console.log("All cookies:", document.cookie);
-    const storedState = getCookie("oauth_state");
-    const codeVerifier = getCookie("oauth_code_verifier");
+    const storedState = sessionStorage.getItem("oauth_state");
+    const codeVerifier = sessionStorage.getItem("oauth_code_verifier");
 
-    console.log("storedState from cookie:", storedState);
+    console.log("storedState from sessionStorage:", storedState);
     console.log("stateParam from URL:", stateParam);
-    console.log("codeVerifier from cookie:", codeVerifier);
+    console.log("codeVerifier from sessionStorage:", codeVerifier);
 
-    clearCookie("oauth_code_verifier");
-    clearCookie("oauth_state");
+    sessionStorage.removeItem("oauth_state");
+    sessionStorage.removeItem("oauth_code_verifier");
+    sessionStorage.removeItem("oauth_code_challenge");
+    sessionStorage.removeItem("oauth_code_challenge_method");
 
     if (!storedState || storedState !== stateParam) {
       console.error("State mismatch - possible CSRF attack");
