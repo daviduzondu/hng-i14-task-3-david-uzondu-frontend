@@ -16,7 +16,7 @@ import {
   Spinner,
   Button,
 } from "react-bootstrap";
-import { request, BASE_URL } from "../lib/api";
+import api, { request, BASE_URL } from "../lib/api";
 import type { Profile, Gender, AgeGroupType } from "../types";
 import { formatGender, formatAgeGroup, formatProbability, formatDate } from "../lib/utils";
 
@@ -161,20 +161,14 @@ export default function Profiles() {
       }
     });
 
-    try {
-      const response = await fetch(`${BASE_URL}/api/profiles/export?${exportParams.toString()}`, {
-        credentials: "include",
-        headers: {
-          "X-API-Version": "1",
-        },
-      });
+try {
+      const response = await api.get(
+        `${BASE_URL}/api/profiles/export?${exportParams.toString()}`,
+        { responseType: "blob" }
+      );
 
-      if (!response.ok) {
-        throw new Error("Export failed");
-      }
-
-const blob = await response.blob();
-      const contentDispositionHeader = response.headers.get("content-disposition");
+      const blob = response.data;
+      const contentDispositionHeader = (response.headers as Record<string, string>)["content-disposition"];
       let filename = `profiles_${new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19)}.csv`;
       if (contentDispositionHeader) {
         const disposition = contentDisposition.parse(contentDispositionHeader);

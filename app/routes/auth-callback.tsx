@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { Container, Spinner, Alert } from "react-bootstrap";
-import { BASE_URL } from "../lib/api";
+import api, { BASE_URL } from "../lib/api";
 
 export default function GitHubCallback() {
   const navigate = useNavigate();
@@ -18,10 +18,6 @@ export default function GitHubCallback() {
 
     const storedState = sessionStorage.getItem("oauth_state");
     const codeVerifier = sessionStorage.getItem("oauth_code_verifier");
-
-    console.log("storedState from sessionStorage:", storedState);
-    console.log("stateParam from URL:", stateParam);
-    console.log("codeVerifier from sessionStorage:", codeVerifier);
 
     sessionStorage.removeItem("oauth_state");
     sessionStorage.removeItem("oauth_code_verifier");
@@ -42,18 +38,10 @@ export default function GitHubCallback() {
 
     const handleCallback = async () => {
       try {
-        const response = await fetch(
-          `${BASE_URL}/auth/github/callback?code=${code}&code_verifier=${codeVerifier}&state=${stateParam}`,
-          {
-            credentials: "include",
-          }
+        await api.get(
+          `${BASE_URL}/auth/github/callback?code=${code}&code_verifier=${codeVerifier}&state=${stateParam}`
         );
-
-        if (response.ok) {
-          navigate("/");
-        } else {
-          setError("Authentication failed");
-        }
+        navigate("/");
       } catch {
         setError("Authentication failed");
       }
