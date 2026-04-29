@@ -8,19 +8,28 @@
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
   },
+  "packageManager": "pnpm@10.33.2",
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@react-router/node": "7.14.0",
     "@react-router/serve": "7.14.0",
+    "@tanstack/react-query": "^5.100.6",
+    "axios": "^1.15.2",
+    "bootstrap": "^5.3.8",
     "isbot": "^5.1.36",
     "react": "^19.2.4",
+    "react-bootstrap": "^2.10.10",
     "react-dom": "^19.2.4",
-    "react-router": "7.14.0"
+    "react-hook-form": "^7.74.0",
+    "react-router": "7.14.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@react-router/dev": "7.14.0",
     "@tailwindcss/vite": "^4.2.2",
     "@types/node": "^22",
     "@types/react": "^19.2.14",
+    "@types/react-bootstrap": "^1.1.0",
     "@types/react-dom": "^19.2.3",
     "tailwindcss": "^4.2.2",
     "typescript": "^5.9.3",
