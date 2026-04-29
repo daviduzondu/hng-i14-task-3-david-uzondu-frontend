@@ -7,6 +7,7 @@ export default [
     index("routes/home.tsx"),
     route("dashboard", "routes/dashboard.tsx"),
     route("profiles", "routes/profiles.tsx"),
+    route("profiles/create", "routes/profiles-create.tsx"),
     route("profiles/:id", "routes/profile-detail.tsx"),
     route("search", "routes/search.tsx"),
     route("account", "routes/account.tsx"),

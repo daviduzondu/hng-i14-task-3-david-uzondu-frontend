@@ -97,6 +97,9 @@ export default function Dashboard() {
                 <a href="/profiles" className="btn btn-primary">
                   View All Profiles
                 </a>
+                <a href="/profiles/create" className="btn btn-success">
+                  Create Profile
+                </a>
                 <a href="/search" className="btn btn-outline-primary">
                   Search Profiles
                 </a>
