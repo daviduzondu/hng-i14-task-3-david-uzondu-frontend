@@ -4,6 +4,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQuery } from "@tanstack/react-query";
+import contentDisposition from "content-disposition";
 import {
   Container,
   Row,
@@ -163,19 +164,22 @@ export default function Profiles() {
     try {
       const response = await fetch(`${BASE_URL}/api/profiles/export?${exportParams.toString()}`, {
         credentials: "include",
+        headers: {
+          "X-API-Version": "1",
+        },
       });
 
       if (!response.ok) {
         throw new Error("Export failed");
       }
 
-      const blob = await response.blob();
-      const contentDisposition = response.headers.get("content-disposition");
-      let filename = "profiles.csv";
-      if (contentDisposition) {
-        const match = contentDisposition.match(/filename="?([^";]+)"?/);
-        if (match) {
-          filename = match[1];
+const blob = await response.blob();
+      const contentDispositionHeader = response.headers.get("content-disposition");
+      let filename = `profiles_${new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19)}.csv`;
+      if (contentDispositionHeader) {
+        const disposition = contentDisposition.parse(contentDispositionHeader);
+        if (disposition.parameters.filename) {
+          filename = disposition.parameters.filename;
         }
       }
 
