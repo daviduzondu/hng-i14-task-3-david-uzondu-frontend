@@ -15,7 +15,7 @@ import {
   Spinner,
   Button,
 } from "react-bootstrap";
-import { request } from "../lib/api";
+import { request, BASE_URL } from "../lib/api";
 import type { Profile, Gender, AgeGroupType } from "../types";
 import { formatGender, formatAgeGroup, formatProbability, formatDate } from "../lib/utils";
 
@@ -151,9 +151,60 @@ export default function Profiles() {
   const currentPage = filters.page || 1;
   const currentLimit = filters.limit || 10;
 
+  const handleExport = async () => {
+    const exportParams = new URLSearchParams();
+    exportParams.set("format", "csv");
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "" && key !== "page" && key !== "limit") {
+        exportParams.set(key, String(value));
+      }
+    });
+
+    try {
+      const response = await fetch(`${BASE_URL}/api/profiles/export?${exportParams.toString()}`, {
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Export failed");
+      }
+
+      const blob = await response.blob();
+      const contentDisposition = response.headers.get("content-disposition");
+      let filename = "profiles.csv";
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="?([^";]+)"?/);
+        if (match) {
+          filename = match[1];
+        }
+      }
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    } catch (err) {
+      console.error("Export failed:", err);
+    }
+  };
+
   return (
     <Container>
-      <h2 className="mb-4">Profiles</h2>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2>Profiles</h2>
+        <div className="d-flex gap-2">
+          <Button variant="outline-primary" onClick={handleExport}>
+            Export CSV
+          </Button>
+          <Button variant="primary" onClick={() => navigate("/profiles/create")}>
+            Create Profile
+          </Button>
+        </div>
+      </div>
       <Row className="g-4 mb-4">
         <Col md={12}>
           <Card>
