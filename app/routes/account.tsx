@@ -17,6 +17,7 @@ export default function Account() {
 
   useEffect(() => {
     if (!isAuthenticated()) {
+      sessionStorage.setItem("redirect_after_login", window.location.pathname + window.location.search);
       navigate("/login");
     }
   }, [navigate]);

@@ -26,6 +26,7 @@ export default function ProfileDetail() {
   const checkAuth = isAuthenticated();
   useEffect(() => {
     if (!checkAuth) {
+      sessionStorage.setItem("redirect_after_login", window.location.pathname + window.location.search);
       navigate("/login");
     }
   }, [checkAuth, navigate]);

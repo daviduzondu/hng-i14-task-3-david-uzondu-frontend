@@ -62,7 +62,13 @@ export default function GitHubCallback() {
           localStorage.setItem("access_token", data.data.access_token);
           localStorage.setItem("username", data.data.username);
           localStorage.setItem("role", data.data.role);
-          navigate("/dashboard");
+          const redirectUrl = sessionStorage.getItem("redirect_after_login");
+          if (redirectUrl) {
+            sessionStorage.removeItem("redirect_after_login");
+            navigate(redirectUrl);
+          } else {
+            navigate("/dashboard");
+          }
         } else {
           setError("Authentication failed");
         }

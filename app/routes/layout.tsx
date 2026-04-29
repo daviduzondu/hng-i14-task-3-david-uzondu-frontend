@@ -27,6 +27,7 @@ export default function Layout() {
     
     const isPublicRoute = PUBLIC_ROUTES.some(route => location.pathname.startsWith(route));
     if (!isPublicRoute && !isLoggedIn && location.pathname !== "/login") {
+      sessionStorage.setItem("redirect_after_login", location.pathname + location.search);
       navigate("/login", { replace: true });
     }
   }, [isAuthCheckComplete, isLoggedIn, location.pathname, navigate]);
