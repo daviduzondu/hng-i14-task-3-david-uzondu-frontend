@@ -18,8 +18,6 @@ import {
 import { request } from "../lib/api";
 import type { Profile } from "../types";
 import { formatGender, formatAgeGroup, formatProbability, formatDate } from "../lib/utils";
-import { isAuthenticated } from "../lib/auth";
-import { useEffect } from "react";
 
 interface SearchApiResponse {
   status: string;
@@ -58,13 +56,6 @@ export default function Search() {
       limit: 10,
     },
   });
-
-  useEffect(() => {
-    if (!isAuthenticated()) {
-      sessionStorage.setItem("redirect_after_login", window.location.pathname + window.location.search);
-      navigate("/login");
-    }
-  }, [navigate]);
 
   const { data, isLoading } = useQuery<SearchApiResponse>({
     queryKey: ["search", searchQuery],

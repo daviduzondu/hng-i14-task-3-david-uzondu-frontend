@@ -1,7 +1,6 @@
-import { Container, Card, Row, Col, Image, Badge } from "react-bootstrap";
-import { getUsername, getRole, isAuthenticated } from "../lib/auth";
-import { useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useState, useEffect } from "react";
+import { Container, Card, Row, Col, Image, Badge, Spinner } from "react-bootstrap";
+import { fetchCurrentUser, type CurrentUser } from "../lib/auth";
 
 export function meta() {
   return [
@@ -11,16 +10,25 @@ export function meta() {
 }
 
 export default function Account() {
-  const navigate = useNavigate();
-  const username = getUsername();
-  const role = getRole();
+  const [user, setUser] = useState<CurrentUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated()) {
-      sessionStorage.setItem("redirect_after_login", window.location.pathname + window.location.search);
-      navigate("/login");
-    }
-  }, [navigate]);
+    const loadUser = async () => {
+      const currentUser = await fetchCurrentUser();
+      setUser(currentUser);
+      setLoading(false);
+    };
+    loadUser();
+  }, []);
+
+  if (loading) {
+    return (
+      <Container className="text-center py-5">
+        <Spinner animation="border" role="status" />
+      </Container>
+    );
+  }
 
   return (
     <Container>
@@ -30,15 +38,15 @@ export default function Account() {
           <Card>
             <Card.Body className="text-center">
               <Image
-                src={`https://github.com/${username}.png`}
+                src={user?.avatar_url || `https://github.com/${user?.username}.png`}
                 roundedCircle
                 width={100}
                 height={100}
                 className="mb-3"
-                alt={username || ""}
+                alt={user?.username || ""}
               />
-              <h3>{username}</h3>
-              <Badge bg="secondary">{role}</Badge>
+              <h3>{user?.username}</h3>
+              <Badge bg="secondary">{user?.role}</Badge>
             </Card.Body>
           </Card>
         </Col>
@@ -48,8 +56,9 @@ export default function Account() {
               <h5>Account Details</h5>
             </Card.Header>
             <Card.Body>
-              <p><strong>Username:</strong> {username}</p>
-              <p><strong>Role:</strong> {role}</p>
+              <p><strong>Username:</strong> {user?.username}</p>
+              <p><strong>Role:</strong> {user?.role}</p>
+              <p><strong>Status:</strong> {user?.is_active ? "Active" : "Inactive"}</p>
             </Card.Body>
           </Card>
         </Col>

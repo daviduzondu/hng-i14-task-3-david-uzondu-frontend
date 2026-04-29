@@ -4,8 +4,6 @@ import { Container, Card, Row, Col, Button, Spinner } from "react-bootstrap";
 import { request } from "../lib/api";
 import type { Profile } from "../types";
 import { formatGender, formatAgeGroup, formatProbability, formatDateTime } from "../lib/utils";
-import { isAuthenticated } from "../lib/auth";
-import { useEffect } from "react";
 
 interface ProfileApiResponse {
   status: string;
@@ -23,14 +21,6 @@ export default function ProfileDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const checkAuth = isAuthenticated();
-  useEffect(() => {
-    if (!checkAuth) {
-      sessionStorage.setItem("redirect_after_login", window.location.pathname + window.location.search);
-      navigate("/login");
-    }
-  }, [checkAuth, navigate]);
-
   const { data, isLoading, error } = useQuery<Profile>({
     queryKey: ["profile", id],
     queryFn: async () => {
@@ -39,7 +29,7 @@ export default function ProfileDetail() {
       });
       return response.data.data as Profile;
     },
-    enabled: !!id && checkAuth,
+    enabled: !!id,
   });
 
   if (isLoading) {
