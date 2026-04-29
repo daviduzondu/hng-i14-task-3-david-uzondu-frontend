@@ -16,7 +16,7 @@ export async function fetchCurrentUser(): Promise<CurrentUser | null> {
   if (!isBrowser()) return null;
 
   try {
-    const res = await fetch(`${BASE_URL}/auth/me`, {
+    const res = await fetch(`${BASE_URL}/api/users/me`, {
       credentials: "include",
     });
 

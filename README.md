@@ -123,18 +123,18 @@ The application will be available at `http://localhost:5173`.
 8. Frontend validates state cookie, clears cookies
 9. Frontend calls backend callback with code + verifier
 10. Backend sets HTTP-only access/refresh cookies
-11. Frontend uses `/auth/me` to get user info
+11. Frontend uses `/api/users/me` to get user info
 
 ### Token Handling
 
 - **Access Token**: Stored in HTTP-only cookie, unreadable by JavaScript
 - **Refresh Token**: Automatically handled by browser cookies
-- **User Info**: Retrieved via `GET /auth/me` endpoint with `credentials: "include"`
+- **User Info**: Retrieved via `GET /api/users/me` endpoint with `credentials: "include"`
 
 ## Role Enforcement Logic
 
 1. Backend enforces roles on all `/api/*` endpoints
-2. Frontend displays features based on user role from `/auth/me`
+2. Frontend displays features based on user role from `/api/users/me`
 3. Admin-only features:
    - Create profile (`/profiles/create`)
    - Delete profile
