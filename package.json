@@ -8,6 +8,7 @@
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
   },
+  "packageManager": "pnpm@10.33.2",
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@react-router/node": "7.14.0",
