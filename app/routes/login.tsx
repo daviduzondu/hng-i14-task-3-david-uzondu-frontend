@@ -1,28 +1,9 @@
 import { Container, Card, Button } from "react-bootstrap";
 import { BASE_URL } from "../lib/api";
-import api from "../lib/api";
-
-interface GitHubAuthResponse {
-  url: string;
-  code_verifier: string;
-  state: string;
-}
 
 export default function Login() {
-  const handleLogin = async () => {
-    try {
-      const response = await api.get<GitHubAuthResponse>(`${BASE_URL}/auth/github`);
-      const data = response.data;
-      console.log(data)
-      
-      if (data.url && data.code_verifier && data.state) {
-        sessionStorage.setItem("oauth_code_verifier", data.code_verifier);
-        sessionStorage.setItem("oauth_state", data.state);
-        window.location.href = data.url;
-      }
-    } catch {
-      console.error("Failed to initiate GitHub login");
-    }
+  const handleLogin = () => {
+    window.location.href = `${BASE_URL}/auth/github`;
   };
 
   return (
