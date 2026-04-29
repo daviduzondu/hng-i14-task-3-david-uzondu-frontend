@@ -17,6 +17,7 @@ export default function Account() {
 
   useEffect(() => {
     if (!isAuthenticated()) {
+      sessionStorage.setItem("redirect_after_login", window.location.pathname + window.location.search);
       navigate("/login");
     }
   }, [navigate]);
@@ -29,7 +30,7 @@ export default function Account() {
           <Card>
             <Card.Body className="text-center">
               <Image
-                src=""
+                src={`https://github.com/${username}.png`}
                 roundedCircle
                 width={100}
                 height={100}

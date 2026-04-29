@@ -52,6 +52,7 @@ api.interceptors.response.use(
         localStorage.removeItem("refresh_token");
         localStorage.removeItem("username");
         localStorage.removeItem("role");
+        sessionStorage.setItem("redirect_after_login", window.location.pathname + window.location.search);
         window.location.href = "/login";
       }
     }

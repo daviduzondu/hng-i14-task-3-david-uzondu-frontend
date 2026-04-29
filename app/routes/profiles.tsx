@@ -96,6 +96,7 @@ export default function Profiles() {
 
   useEffect(() => {
     if (!isAuthenticated()) {
+      sessionStorage.setItem("redirect_after_login", window.location.pathname + window.location.search);
       navigate("/login");
     }
   }, [navigate]);
@@ -337,29 +338,6 @@ export default function Profiles() {
                     </Form.Group>
                   </Col>
                   <Col md={4} className="d-flex align-items-end">
-                    <Form.Group className="me-2">
-                      <Form.Label>Per Page</Form.Label>
-                      <Controller
-                        name="limit"
-                        control={control}
-                        render={({ field }) => (
-                          <Form.Select
-                            {...field}
-                            value={field.value || 10}
-                            onChange={e => {
-                              field.onChange(parseInt(e.target.value));
-                              handleLimitChange(parseInt(e.target.value));
-                            }}
-                            style={{ width: "100px" }}
-                          >
-                            <option value={5}>5</option>
-                            <option value={10}>10</option>
-                            <option value={20}>20</option>
-                            <option value={50}>50</option>
-                          </Form.Select>
-                        )}
-                      />
-                    </Form.Group>
                     <Form.Group>
                       <Form.Label>&nbsp;</Form.Label>
                       <div className="d-flex gap-2">
@@ -448,15 +426,27 @@ export default function Profiles() {
                     of {data?.total || 0} profiles
                   </span>
                 </Col>
-                <Col md={8}>
-                  <Pagination className="justify-content-end">
+                <Col md={8} className="d-flex justify-content-end align-items-center">
+                  <Form.Group className="me-3 d-flex align-items-center">
+                    <Form.Label className="me-2 mb-0">Per Page:</Form.Label>
+                    <Form.Select
+                      value={currentLimit}
+                      onChange={e => handleLimitChange(parseInt(e.target.value))}
+                      style={{ width: "80px" }}
+                    >
+                      <option value={5}>5</option>
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={50}>50</option>
+                    </Form.Select>
+                  </Form.Group>
+                  <Pagination className="mb-0">
                     <Pagination.Prev
                       disabled={currentPage === 1}
                       onClick={() => handlePageChange(currentPage - 1)}
                     />
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      const page = i + 1;
-                      return (
+                    {totalPages <= 7 ? (
+                      Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                         <Pagination.Item
                           key={page}
                           active={page === currentPage}
@@ -464,8 +454,64 @@ export default function Profiles() {
                         >
                           {page}
                         </Pagination.Item>
-                      );
-                    })}
+                      ))
+                    ) : (
+                      <>
+                        {currentPage <= 3 ? (
+                          <>
+                            {[1, 2, 3, 4, 5].map(page => (
+                              <Pagination.Item
+                                key={page}
+                                active={page === currentPage}
+                                onClick={() => handlePageChange(page)}
+                              >
+                                {page}
+                              </Pagination.Item>
+                            ))}
+                            <Pagination.Ellipsis disabled />
+                            <Pagination.Item onClick={() => handlePageChange(totalPages)}>
+                              {totalPages}
+                            </Pagination.Item>
+                          </>
+                        ) : currentPage >= totalPages - 2 ? (
+                          <>
+                            <Pagination.Item onClick={() => handlePageChange(1)}>
+                              1
+                            </Pagination.Item>
+                            <Pagination.Ellipsis disabled />
+                            {[totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages].map(page => (
+                              <Pagination.Item
+                                key={page}
+                                active={page === currentPage}
+                                onClick={() => handlePageChange(page)}
+                              >
+                                {page}
+                              </Pagination.Item>
+                            ))}
+                          </>
+                        ) : (
+                          <>
+                            <Pagination.Item onClick={() => handlePageChange(1)}>
+                              1
+                            </Pagination.Item>
+                            <Pagination.Ellipsis disabled />
+                            {[currentPage - 1, currentPage, currentPage + 1].map(page => (
+                              <Pagination.Item
+                                key={page}
+                                active={page === currentPage}
+                                onClick={() => handlePageChange(page)}
+                              >
+                                {page}
+                              </Pagination.Item>
+                            ))}
+                            <Pagination.Ellipsis disabled />
+                            <Pagination.Item onClick={() => handlePageChange(totalPages)}>
+                              {totalPages}
+                            </Pagination.Item>
+                          </>
+                        )}
+                      </>
+                    )}
                     <Pagination.Next
                       disabled={currentPage === totalPages}
                       onClick={() => handlePageChange(currentPage + 1)}
