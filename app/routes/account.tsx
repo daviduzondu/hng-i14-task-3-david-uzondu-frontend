@@ -29,7 +29,7 @@ export default function Account() {
           <Card>
             <Card.Body className="text-center">
               <Image
-                src=""
+                src={`https://github.com/${username}.png`}
                 roundedCircle
                 width={100}
                 height={100}

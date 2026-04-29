@@ -65,7 +65,7 @@ export default function Layout() {
             <Nav>
               <Nav.Link href="/account" className="d-flex align-items-center">
                 <Image
-                  src=""
+                  src={`https://github.com/${username}.png`}
                   roundedCircle
                   width={32}
                   height={32}
